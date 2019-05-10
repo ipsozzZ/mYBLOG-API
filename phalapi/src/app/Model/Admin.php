@@ -39,9 +39,10 @@ class Admin extends NotORM
 	 * 插入一条数据
 	 * @param data 一条数据（一维数组）
 	 */
-	public function saveOne($data){
+	public function insertOne($data){
 		$model = $this -> getORM();
-		return $model -> insert($data);
+		$model -> insert($data);
+		return $model -> insert_id();
 	}
 
 	/**

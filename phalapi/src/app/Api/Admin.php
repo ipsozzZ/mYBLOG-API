@@ -18,11 +18,20 @@ class Admin extends Api
 				'Pass' => array('name' => 'Pass', 'require' => true, 'min' => 4, 'desc' => '用户密码'),
 			),
 			'add' => array(
-				'account' => array('name' => 'account', 'require' => true, 'min' => 4, 'max' => 50, 'desc' => '用户名'),
-				'pass' => array('name' => 'pass', 'require' => true, 'min' => 8, 'max' => 50, 'desc' => '用户密码'),
+				'Account' => array('name' => 'Account', 'require' => true, 'min' => 4,'desc' => '用户名'),
+				'Pass' => array('name' => 'Pass', 'require' => true, 'min' => 4,'desc' => '用户密码'),
+				'CurrId' => array('name' => 'CurrId', 'require' => true, 'desc' => '当前操作的管理员Id')
 			),
 			'getAdmins' => array(),
 			'getCode' => array(),
+			'delete' => array(
+				'Id' => array('name' => 'Id', 'require' => true, 'desc' => '需要删除的管理员Id'),
+				'CurrId' => array('name' => 'CurrId', 'require' => true, 'desc' => '当前操作的管理员Id')
+			),
+			'giveLimit' => array(
+				'Id' => array('name' => 'Id', 'require' => true, 'desc' => '需要授权的管理员Id'),
+				'CurrId' => array('name' => 'CurrId', 'require' => true, 'desc' => '当前操作的管理员Id')
+			),
 		);
 	}
 
@@ -58,6 +67,32 @@ class Admin extends Api
 
 		// 登录成功 
 		return MyRules::myRuturn(1, '登录成功', $manager);
+	}
+
+	/**
+	 * 添加管理员
+	 */
+	public function add(){
+		$model = new Model();
+		$currId = $this -> CurrId;
+		$currAdmin = $model -> getById($currId);
+		if($currAdmin['limit'] != 1){
+			return MyRules::myRuturn(0, '你没有操作权限!', '');
+		}
+		$isAdmin = $model -> getByName($this -> Account);
+		if($isAdmin){
+			return MyRules::myRuturn(0, '管理员已经存在!', '');
+		}
+		$data = array(
+			'account' => $this -> Account,
+			'pass'    => $this -> Pass,
+			'limit'   => 0,
+		);
+		$sql = $model -> insertOne($data);
+		if(!$sql){
+			return MyRules::myRuturn(0, '添加失败', '');
+		}
+		return MyRules::myRuturn(1, '添加成功!', $sql);
 	}
 
 	/**
@@ -100,5 +135,50 @@ class Admin extends Api
 		$common = new GD();
 		$res = $common -> getVerification(4);
 		return MyRules::myRuturn(1, '获取成功', $res);
+	}
+
+	/**
+	 * 超级管理员删除普通管理员
+	 */
+	public function delete(){
+		$model = new Model();
+		$Id = $this -> Id;
+		$CurrId = $this -> CurrId;
+		$currAdmin = $model -> getById($CurrId);
+		if($currAdmin['limit'] == 0){
+			return MyRules::myRuturn(0, '只有超级管理员才能删除管理员','');
+		}
+		$admin = $model -> getById($Id);
+		if($admin['limit'] == 1){
+			return MyRules::myRuturn(0, '不允许删除超级管理员','');
+		}
+		$sql = $model -> deleteOne($Id);
+		if(!$sql){
+			return MyRules::myRuturn(0, '操作异常，请重试!', '');
+		}
+		return MyRules::myRuturn(1, '删除成功!', '');
+	}
+
+	/**
+	 * 将普通管理员授权为超级管理员，只有超级管理员才能进行次操作
+	 */
+	public function giveLimit(){
+		$model = new Model();
+		$currId = $this -> CurrId;
+		$Id = $this -> Id;
+		$currAdmin = $model -> getById($currId);
+		$aimAdmin = $model -> getById($Id);
+		if($currAdmin['limit'] != 1){
+			return MyRules::myRuturn(0, '你没有权限进行此操作!','');
+		}
+		if($aimAdmin['limit'] == 1){
+			return MyRules::myRuturn(0, '对方已经是超级管理员!','');
+		}
+		$aimAdmin['limit'] = 1;
+		$sql = $model -> updateOne($Id, $aimAdmin);
+		if(!$sql){
+			return MyRules::myRuturn(0, '操作异常，请稍后尝试!', '');
+		}
+		return MyRules::myRuturn(1, '授权成功!', '');
 	}
 }
