@@ -32,6 +32,11 @@ class Admin extends Api
 				'Id' => array('name' => 'Id', 'require' => true, 'desc' => '需要授权的管理员Id'),
 				'CurrId' => array('name' => 'CurrId', 'require' => true, 'desc' => '当前操作的管理员Id')
 			),
+			'update' => array(
+				'Account' => array('name' => 'Account', 'require' => true, 'min' => 4,'desc' => '用户名'),
+				'Pass' => array('name' => 'Pass', 'require' => true, 'min' => 4,'desc' => '用户密码'),
+				'CurrId' => array('name' => 'CurrId', 'require' => true, 'desc' => '当前操作的管理员Id')
+			),
 		);
 	}
 
@@ -172,13 +177,40 @@ class Admin extends Api
 			return MyRules::myRuturn(0, '你没有权限进行此操作!','');
 		}
 		if($aimAdmin['limit'] == 1){
-			return MyRules::myRuturn(0, '对方已经是超级管理员!','');
+			// return MyRules::myRuturn(0, '对方已经是超级管理员!','');
+			$aimAdmin['limit'] = 0;
+		}else {
+			$aimAdmin['limit'] = 1;
 		}
-		$aimAdmin['limit'] = 1;
 		$sql = $model -> updateOne($Id, $aimAdmin);
 		if(!$sql){
 			return MyRules::myRuturn(0, '操作异常，请稍后尝试!', '');
 		}
 		return MyRules::myRuturn(1, '授权成功!', '');
+	}
+
+	/**
+	 * 修改管理员信息
+	 */
+	public function update(){
+		$model = new Model();
+		$data = array();
+		$admin = $model -> getById($this -> CurrId);
+		if($admin['pass'] != $this -> Pass){
+			return MyRules::myRuturn(0, '管理员密码不正确!', '');
+		}
+		$isAdmin = $model -> getByName($this -> Account);
+		if($isAdmin){
+			return MyRules::myRuturn(0, '管理员账号已存在!', '');
+		}
+		$data = array(
+			"account" => $this -> Account,
+			"pass"    => $this -> Pass,
+		);
+		$sql = $model -> updateOne($this -> CurrId, $data);
+		if(!$sql){
+			return MyRules::myRuturn(0, '修改失败，请稍后重试!', '');
+		}
+		return MyRules::myRuturn(1, '修改成功!', '');
 	}
 }
