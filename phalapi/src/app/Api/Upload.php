@@ -1,6 +1,7 @@
 <?php
 namespace App\Api;
 
+use PhalApi\Api;
 /**
  * 文件上传服务类
  * @author ipso
@@ -31,7 +32,8 @@ class Upload extends Api{
 	 * 图片上传
 	 */
 	public function uploadImg(){
-		$tmpName = $this -> file("tmp_name");
+		var_dump($this->file);
+		$tmpName = $this -> file['tmp_name'];
 		$name = md5($this -> file['name'] . $_SERVER['REQUEST_TIME']);
 		$ext = strrchr($this->file['name'], '.'); // 查找'.'在name中最后一次出现的位置
 		$uploadFolder = sprintf('%s/public/uploads/', API_ROOT); // 文件
@@ -39,10 +41,11 @@ class Upload extends Api{
       mkdir($uploadFolder, 0777);
 		}
 		$imgPath = $uploadFolder .  $name . $ext;
-      if (!move_uploaded_file($tmpName, $imgPath)) {
-        $rs["msg"] = "移动文件失败！";
-        return $rs;
-    }
+    if (!move_uploaded_file($tmpName, $imgPath)) {
+      $rs["msg"] = "移动文件失败！";
+      return $rs;
+		}
+		return 1;
 	}
 
 	/**

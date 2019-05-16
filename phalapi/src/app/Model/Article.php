@@ -32,12 +32,12 @@ class Article extends NotORM{
 	}
 
 	public function getCount(){
-		$model = new Model();
+		$model = $this -> getORM();
 		return $model -> count('id');
 	}
 
 	public function getList($begin = 1, $num = 10){
-		$model = new Model();
+		$model = $this -> getORM();
 		return $model -> limit($begin, $num) -> fetchAll();
 	}
 
