@@ -28,10 +28,6 @@ class Article extends Api{
 				'id'     => array('name' => 'id', 'require' => true, 'desc' => '文章Id'),
 				'currId' => array('name' => 'currId', 'require' => true, 'desc' => '当前操作的管理员Id')
 			),
-			'publish' => array(
-				'Id'     => array('name' => 'Id', 'require' => true, 'desc' => '需要删除的管理员Id'),
-				'CurrId' => array('name' => 'CurrId', 'require' => true, 'desc' => '当前操作的管理员Id')
-			),
 			'update' => array(
 				'id'       => array('name' => 'id', 'desc' => '文章id'),
 				'title'    => array('name' => 'title', 'desc' => '文章标题'),
@@ -52,6 +48,9 @@ class Article extends Api{
 				'num'  => array('name' => 'num', 'require' => true, 'desc' => '每页数量')
 			),
 			'getById' => array(
+				'id' => array('name' => 'id', 'require' => true, 'desc' => '文章id'),
+			),
+			'publish' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '文章id'),
 			),
 		);
@@ -76,6 +75,8 @@ class Article extends Api{
 			'content'  => $this -> content,
 		);
 		$data['ctime'] = time();
+		$data['rtime'] = time();
+		$data['face'] = '#';
 		$res = $model -> insertOne($data);
 		if(!$res){
 			return MyRules::myRuturn(0, '添加失败，稍后重试！');
@@ -163,6 +164,26 @@ class Article extends Api{
 		if(!$article){
 			return MyRules::myRuturn(0, '数据获取失败!');
 		}
+		$article["ctime"] = date('Y/m/d H:i:s', $article["ctime"]);
+		$article["rtime"] = date('Y/m/d H:i:s', $article["rtime"]);
 		return MyRules::myRuturn(1, '数据获取成功', $article);
+	}
+
+	/**
+	 * 发布一篇文章
+	 */
+	public function publish(){
+		$Id = $this -> id;
+		$model = new Model();
+		$art = $model -> getById($Id);
+		if(is_file($art['state']) == false){
+			return MyRules::myRuturn(0, '请添加文章封面后再发布文章');
+		}
+		$art['state'] = 1;
+		$res = $model -> updateOne($Id, $art);
+		if(!$res){
+			return MyRules::myRuturn(0, '文章发布失败');
+		}
+		return MyRules::myRuturn(1, '文章发布成功！');
 	}
 }
