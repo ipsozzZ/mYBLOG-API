@@ -42,11 +42,6 @@ class User
 	 */
 	public function Register($data){
 		$model = new Model();
-		if($data['sex'] == 'male'){
-			$data['sex'] = 1;
-		}else{
-			$data['sex'] = 0;
-		}
 		$sql = $model -> getByName($data['name']);
 		if($sql){
 			return array(
@@ -62,7 +57,7 @@ class User
 			);
 		}
 		return array(
-			'status' => 1,
+			'status' => $insert,
 			'msg'    => '注册成功!',
 		);
 	}

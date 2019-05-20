@@ -32,10 +32,9 @@ class Upload extends Api{
 	 * 图片上传
 	 */
 	public function uploadImg(){
-		var_dump($this->file);
 		$tmpName = $this -> file['tmp_name'];
 		$name = md5($this -> file['name'] . $_SERVER['REQUEST_TIME']);
-		$ext = strrchr($this->file['name'], '.'); // 查找'.'在name中最后一次出现的位置
+		$ext = strrchr($this->file['name'], '.'); // 查找'.'在name中最后一次出现的位置并将该位置到末尾的子字符串返回
 		$uploadFolder = sprintf('%s/public/uploads/', API_ROOT); // 文件
 		if (!is_dir($uploadFolder)) { // 查找uploads文件夹是否存在，不存在则建立新的文件夹
       mkdir($uploadFolder, 0777);

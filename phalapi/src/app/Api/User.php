@@ -3,6 +3,8 @@ namespace App\Api;
 use PhalApi\Api;
 use App\Domain\User as Domain;
 use App\Common\GD as GD;
+use App\Model\User as Model;
+use App\Common\MyRules;
 
 /**
  * 用户模块接口服务
@@ -12,14 +14,31 @@ class User extends Api {
     public function getRules() {	
       return array(
 				'Login' => array(
-					'username' => array('name' => 'username', 'require' => true, 'min' => 4, 'desc' => '用户名'),
-					'password' => array('name' => 'password', 'require' => true, 'min' => 8, 'desc' => '用户密码'),
+					'name' => array('name' => 'name', 'require' => true, 'min' => 4, 'desc' => '用户名'),
+					'pass' => array('name' => 'pass', 'require' => true, 'min' => 8, 'desc' => '用户密码'),
 				),
-				'Register' => array(
-					'username' => array('name' => 'username', 'require' => true, 'min' => 4, 'max' => 50, 'desc' => '用户名'),
-					'password' => array('name' => 'password', 'require' => true, 'min' => 8, 'max' => 50, 'desc' => '用户密码'),
-					'age'      => array('name' => 'age', 'type' => 'int', 'desc' => '年龄'),
-					'sex'      => array('name' => 'sex', 'enum', 'range' => array('female', 'male')),
+				'add' => array(
+					'name' => array('name' => 'name', 'require' => true, 'min' => 4, 'max' => 50, 'desc' => '用户名'),
+					'pass' => array('name' => 'pass', 'require' => true, 'min' => 6, 'max' => 50, 'desc' => '用户密码'),
+					'about'      => array('name' => 'about', 'desc' => '一句话介绍自己'),
+				),
+				'update' => array(
+					'id' => array('name' => 'id', 'require' => true, 'desc' => '用户编号'),
+					'name' => array('name' => 'name', 'min' => 4, 'max' => 50, 'desc' => '用户名'),
+					'pass' => array('name' => 'pass', 'require' => true, 'min' => 6, 'max' => 50, 'desc' => '用户密码'),
+					'about'      => array('name' => 'about', 'desc' => '一句话介绍自己'),
+				),
+				'addLike' => array(
+					'id' => array('name' => 'id', 'require' => true, 'desc' => '用户id'),
+					'aid' => array('name' => 'aid', 'require' => true, 'desc' => '文章id'),
+				),
+				'getList' => array(
+					'page' => array('name' => 'page', 'desc' => '当前页码'),
+					'num' => array('name' => 'num', 'desc' => '每页数量'),
+				),
+				'getCount' => array(),
+				'getById' => array(
+					'id' => array('name' => 'id', 'require' => true, 'desc' => '用户id'),
 				),
 			);
 		}
@@ -28,10 +47,9 @@ class User extends Api {
      * 登录接
      */
     public function Login() {
-      $user = $this->username;
-			$pass = $this->password;
+      $user = $this->name;
+			$pass = $this->pass;
 			$GD = new GD();
-			$headerimg = $GD -> getUserDefaultHeaderByName($user);
 			$codeimg = $GD -> getVerification(4);
 			$domain = new Domain();
 			$login = $domain -> Login($user, $pass);
@@ -44,20 +62,44 @@ class User extends Api {
 		/**
      * 注册接口
      */
-    public function Register() {
+    public function add() {
 			$data = array(
-				'name' => $this->username,
-				'pass' => $this->password,
-				'age'  => $this->age,
-				'sex'  => $this->sex,
+				'name'  => $this->username,
+				'pass'  => $this->password,
+				'about' => $this->age,
+				'like'  => '',
+				'pic'   => '',
 			);
 			$domain = new Domain();
 			$register = $domain -> Register($data);
 			if($register['status'] == 0){
 				return $this -> getReturn(0, $register['msg']);
 			}
-			return $this -> getReturn(1, $register['msg']);
+			return $this -> getReturn(1, $register['msg'], $register['status']);
 		}
+
+
+		/**
+	 * 获取文章数量
+	 */
+	public function getCount(){
+		$model = new Model();
+		$count = $model -> getCount();
+		return MyRules::myRuturn(1, '获取成功!', $count);
+	}
+
+	/**
+	 * 获取文章列表，分页
+	 */
+	public function getList(){
+		$model = new Model();
+		$begin = ($this -> page - 1) * $this -> num;
+		$list = $model -> getList($begin, $this -> num);
+		if(!$list){
+			return MyRules::myRuturn(0, '无数据!');
+		}
+		return MyRules::myRuturn(1, '获取成功!', $list);
+	}
 		
 		/**
 		 * 组织返回信息的格式，将返回信息放入数组
