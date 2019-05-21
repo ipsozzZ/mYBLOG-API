@@ -25,7 +25,6 @@ class User extends Api {
 				'update' => array(
 					'id' => array('name' => 'id', 'require' => true, 'desc' => '用户编号'),
 					'name' => array('name' => 'name', 'min' => 4, 'max' => 50, 'desc' => '用户名'),
-					'pass' => array('name' => 'pass', 'require' => true, 'min' => 6, 'max' => 50, 'desc' => '用户密码'),
 					'about'      => array('name' => 'about', 'desc' => '一句话介绍自己'),
 				),
 				'addLike' => array(
@@ -38,6 +37,9 @@ class User extends Api {
 				),
 				'getCount' => array(),
 				'getById' => array(
+					'id' => array('name' => 'id', 'require' => true, 'desc' => '用户id'),
+				),
+				'delete' => array(
 					'id' => array('name' => 'id', 'require' => true, 'desc' => '用户id'),
 				),
 			);
@@ -64,9 +66,9 @@ class User extends Api {
      */
     public function add() {
 			$data = array(
-				'name'  => $this->username,
-				'pass'  => $this->password,
-				'about' => $this->age,
+				'name'  => $this->name,
+				'pass'  => $this->pass,
+				'about' => $this->about,
 				'like'  => '',
 				'pic'   => '',
 			);
@@ -100,18 +102,61 @@ class User extends Api {
 		}
 		return MyRules::myRuturn(1, '获取成功!', $list);
 	}
-		
-		/**
-		 * 组织返回信息的格式，将返回信息放入数组
-		 * @param state 状态码
-		 * @param msg   返回信息,
-		 * @param data  返回的数据
-		 */
-		protected function getReturn($state = 0, $msg = '', $data = null){
-			return array(
-				'code' => $state,
-				'msg'   => $msg,
-				'data'  => $data,
-			);
+
+	/**
+	 * 删除一条用户信息
+	 */
+	public function delete(){
+		$model = new Model();
+		$Id = $this -> id;
+		$sql = $model -> deleteOne($Id);
+		if(!$sql){
+			return MyRules::myRuturn(0, '删除失败!');
 		}
+		return MyRules::myRuturn(1, '删除成功!');
+	}
+
+	/**
+	 * 管理员修改用户信息
+	 */
+	public function update(){
+		$model = new Model();
+		$data = array(
+			'name'  => $this -> name,
+			'about' => $this -> about,
+		);
+		$Id = $this -> id;
+		$sql = $model -> updateOne($Id, $data);
+		if(!$sql){
+			return MyRules::myRuturn(0, '修改失败！');
+		}
+		return MyRules::myRuturn(1, '修改成功!');
+	}
+
+	/**
+	 * 通过Id获取用户信息
+	 */
+	public function getById(){
+		$model = new Model();
+		$Id = $this -> id;
+		$user = $model -> getById($Id);
+		if(!$user){
+			return MyRules::myRuturn(0, '获取失败');
+		}
+		return MyRules::myRuturn(1, '获取成功！', $user);
+	}
+		
+	/**
+	 * 组织返回信息的格式，将返回信息放入数组
+	 * @param state 状态码
+	 * @param msg   返回信息,
+	 * @param data  返回的数据
+	 */
+	protected function getReturn($state = 0, $msg = '', $data = null){
+		return array(
+			'code' => $state,
+			'msg'   => $msg,
+			'data'  => $data,
+		);
+	}
 } 
