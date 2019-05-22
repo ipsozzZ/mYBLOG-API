@@ -13,6 +13,11 @@ class Config extends NotORM{
 		return $model -> fectAll();
 	}
 
+	public function getCount(){
+		$model = $this -> getORM();
+		return $model -> count('id');
+	}
+
 	public function getById($id){
 		$model = $this -> getORM();
 		return $model -> where('id', $id) -> fetchOne();
@@ -32,5 +37,10 @@ class Config extends NotORM{
 	public function deleteOne($id){
 		$model = $this -> getORM();
 		return $model -> where('id', $id) -> delete();
+	}
+	
+	public function getMax(){
+		$model = $this -> getORM();
+		return $model -> max('id');
 	}
 }
