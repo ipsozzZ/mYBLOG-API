@@ -9,7 +9,7 @@ class Friendlink extends NotORM{
 	 * 获取所有记录
 	 */
 	public function getAll(){
-		$model = new Model();
+		$model = $this -> getORM();
 		return $model -> fetchAll();
 	}
 
@@ -28,7 +28,7 @@ class Friendlink extends NotORM{
 	 */
 	public function getByName($name){
 		$model = $this -> getORM();
-		return $model -> where('account', $name) -> fetchOne();
+		return $model -> where('name', $name) -> fetchOne();
 	}
 
 	/**

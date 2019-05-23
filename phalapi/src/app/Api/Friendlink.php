@@ -1,30 +1,38 @@
 <?php
-namespace App\Model;
+namespace App\Api;
 
 use PhalApi\Api;
 use App\Model\Friendlink as Model;
 use App\Common\MyRules;
 
+/**
+ * 友情链接类接口
+ */
 class Friendlink extends Api{
 	public function getRules(){
 		return array(
 			'add' => array(
 				'name'    => array('name' => 'name', 'require' => true, 'desc' => '友链id'),
 				'address' => array('name' => 'address', 'require' => true, 'desc' => '链接地址'),
-				'state'   => array('name' => 'state', 'desc' => '链接地址'),
-				'isshow'  => array('name' => 'isshow', 'desc' => '链接地址'),
+				'state'   => array('name' => 'state', 'desc' => '状态'),
+				'isshow'  => array('name' => 'isshow', 'desc' => '是否显示'),
+				'remarks'  => array('name' => 'remarks', 'desc' => '备注'),
 			),
 			'update' => array(
 				'id'      => array('name' => 'id', 'require' => true, 'desc' => '配置id'),
 				'name'    => array('name' => 'name', 'desc' => '友链id'),
 				'address' => array('name' => 'address', 'desc' => '链接地址'),
-				'state'   => array('name' => 'state', 'desc' => '链接地址'),
-				'isshow'  => array('name' => 'isshow', 'desc' => '链接地址'),
+				'state'   => array('name' => 'state', 'desc' => '状态'),
+				'isshow'  => array('name' => 'isshow', 'desc' => '是否显示'),
+				'remarks'  => array('name' => 'remarks', 'desc' => '备注'),
 			),
 			'getById' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '友链id')
 			),
 			'getList' => array(
+			),
+			'delete' => array(
+				'id' => array('name' => 'id', 'require' => true, 'desc' => '友链id')
 			),
 		);
 	}
@@ -43,6 +51,7 @@ class Friendlink extends Api{
 			'address' => $this -> address,
 			'state'   => $this -> state,
 			'isshow'  => $this -> isshow,
+			'remarks' => $this -> remarks
 		);
 		$res = $model -> insertOne($data);
 		if(!$res){
@@ -66,6 +75,7 @@ class Friendlink extends Api{
 			'address' => $this -> address,
 			'state'   => $this -> state,
 			'isshow'  => $this -> isshow,
+			'remarks' => $this -> remarks
 		);
 		$sql = $model -> updateOne($Id, $data);
 		if(!$sql){
@@ -79,7 +89,7 @@ class Friendlink extends Api{
 	 */
 	public function getById(){
 		$model = new Model();
-		$Id = $this -> Id;
+		$Id = $this -> id;
 		$fr = $model -> getById($Id);
 		if(!$fr){
 			return MyRules::myRuturn(1, '失败！');
@@ -97,5 +107,18 @@ class Friendlink extends Api{
 			return MyRules::myRuturn(0, '获取失败');
 		}
 		return MyRules::myRuturn(1, '获取成功', $frs);
+	}
+
+	/**
+	 * 根据id删除一条记录
+	 */
+	public function delete(){
+		$model = new Model();
+		$Id = $this -> id;
+		$sql = $model -> deleteOne($Id);
+		if(!$sql){
+			return MyRules::myRuturn(0, '删除失败');
+		}
+		return MyRules::myRuturn(1, '删除成功！');
 	}
 }

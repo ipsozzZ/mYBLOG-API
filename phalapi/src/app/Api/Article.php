@@ -53,6 +53,8 @@ class Article extends Api{
 			'publish' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '文章id'),
 			),
+			'getAll' => array(
+			),
 		);
 	}
 
@@ -185,5 +187,17 @@ class Article extends Api{
 			return MyRules::myRuturn(0, '文章发布失败');
 		}
 		return MyRules::myRuturn(1, '文章发布成功！');
+	}
+
+	/**
+	 * 获取所有文章
+	 */
+	public function getAll(){
+		$model = new Model();
+		$list = $model -> getAll();
+		if(!$list){
+			return MyRules::myRuturn(0, '获取失败');
+		}
+		return MyRules::myRuturn(1, '获取成功!', $list);
 	}
 }

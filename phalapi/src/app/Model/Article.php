@@ -10,7 +10,7 @@ class Article extends NotORM{
 	 */
 	public function getAll(){
 		$model = $this -> getORM();
-		return $model -> fetchAll();
+		return $model -> select('id, title') -> fetchAll();
 	}
 
 	/**
