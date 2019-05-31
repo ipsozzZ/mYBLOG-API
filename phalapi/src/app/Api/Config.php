@@ -13,18 +13,9 @@ class Config extends Api{
 			'add' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '配置id'),
 				'title' => array('name' => 'title', 'require' => true, 'desc' => '站点配置'),
-				'host' => array('name' => 'host',  'desc' => '站点配置'),
+				'host' => array('name' => 'host',  'desc' => '站长'),
 				'desc' => array('name' => 'desc', 'desc' => '站点配置'),
-				'email' => array('name' => 'email', 'desc' => '站点配置'),
-				'address' => array('name' => 'address', 'desc' => '站点配置'),
-				'state' => array('name' => 'state', 'desc' => '站点配置'),
-				'info' => array('name' => 'info', 'desc' => '站点配置'),
-			),
-			'update' => array(
-				'id' => array('name' => 'id', 'require' => true, 'desc' => '配置id'),
-				'title' => array('name' => 'title', 'require' => true, 'desc' => '站点配置'),
-				'host' => array('name' => 'host',  'desc' => '站点配置'),
-				'desc' => array('name' => 'desc', 'desc' => '站点配置'),
+				'certificates' => array('name' => 'certificates', 'desc' => '证件'),
 				'email' => array('name' => 'email', 'desc' => '站点配置'),
 				'address' => array('name' => 'address', 'desc' => '站点配置'),
 				'state' => array('name' => 'state', 'desc' => '站点配置'),
@@ -49,6 +40,7 @@ class Config extends Api{
 			'title'   => $this -> title,
 			'host'    => $this -> host,
 			'desc'    => $this -> desc,
+			'certificates' => $this -> certificates,
 			'email'   => $this -> email,
 			'address' => $this -> address,
 			'state'   => $this -> state,
@@ -96,6 +88,11 @@ class Config extends Api{
 			return MyRules::myRuturn(0, '获取失败');
 		}
 		$data = json_decode($config['config'], true);
+		if($data['state'] == 'true'){
+			$data['state'] = true;
+		}else{
+			$data['state'] = false;
+		}
 		$data['id'] = $config['id'];
 		return MyRules::myRuturn(1, '获取成功', $data);
 	}

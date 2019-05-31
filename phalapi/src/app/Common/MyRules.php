@@ -23,4 +23,22 @@ class MyRules {
 
 		return $rule;
 	}
+
+	/**
+	 * 图片转存upyun
+	 */
+	public function base64UploadUPY(){}
+
+
+	/**
+	 * 将一张图片进行base64编码
+	 * @param image_file 图片路径
+	 */
+	public static function base64EncodeImage($image_file){
+		$base64_image = '';
+		$image_info = @getimagesize($image_file);
+		$image_data = @fread(fopen($image_file, 'r'), @filesize($image_file));
+		$base64_image = 'data:' . $image_info['mime'] . ';base64,' . @chunk_split(@base64_encode($image_data));
+		return $base64_image;
+  }
 }

@@ -42,7 +42,7 @@ class Article extends NotORM{
 	}
 
 	/**
-	 * 插入一条数据
+	 * 插入一条数据 
 	 * @param data 一条数据（一维数组）
 	 */
 	public function insertOne($data){
@@ -77,5 +77,45 @@ class Article extends NotORM{
 	public function deleteOne($id){
 		$model = $this -> getORM();
 		return $model -> where('id', $id) -> delete();
+	}
+
+	/**
+	 * 通过分类获取文章数量
+	 */
+	public function getCountByCate($cid){
+		$model = $this -> getORM();
+		return $model -> where('cate', $cid) -> where('state', 1) -> count('id');
+	}
+
+	public function getListByCate($begin = 1, $num = 10, $cate = 1){
+		$model = $this -> getORM();
+		return $model -> where('cate', $cate) -> where('state', 1) -> limit($begin, $num) -> fetchAll();
+	}
+
+
+	/* 前台系统 */
+
+	/**
+	 * 获取已发布的所有文章
+	 */
+	public function getArts($begin = 1, $num = 10){
+		$model = $this -> getORM();
+		return $model -> where('state', 1) -> limit($begin, $num) -> fetchAll();
+	}
+
+	/**
+	 * 获取已发布的所有文章
+	 */
+	public function getArtsCount(){
+		$model = $this -> getORM();
+		return $model -> where('state', 1) -> count('id');
+	}
+
+	/**
+	 * 添加文章like
+	 */
+	public function addLike($Id = 1){
+		$model = $this -> getORM();
+		return $model -> where('id', $Id) -> updateCounter('like', 1);
 	}
 }

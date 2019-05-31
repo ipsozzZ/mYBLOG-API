@@ -3,6 +3,7 @@ namespace App\Api;
 use PhalApi\Api;
 use App\Model\Cate as Model;
 use App\Common\MyRules;
+use App\Model\Article;
 
 /**
  * 管理员类接口
@@ -27,6 +28,9 @@ class Category extends Api
 				'desc' => array('name' => 'desc', 'desc' => '栏目描述'),
 			),
 			'getById' => array(
+				'id' => array('name' => 'id', 'require' => true, 'desc' => '栏目Id'),
+			),
+			'getArtCount' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '栏目Id'),
 			),
 		);
@@ -66,6 +70,11 @@ class Category extends Api
 				'msg'  => '获取失败',
 				'data' => '',
 			);
+		}
+		$len = count($list);
+		for( $i = 0; $i < $len; $i++ ){
+			$count = $this -> changeCate($list[$i]['id']);
+			$list[$i]['count'] = $count;
 		}
 		return array(
 			'code' => 1,
@@ -124,5 +133,35 @@ class Category extends Api
 			return MyRules::myRuturn(0, '获取数据失败!');
 		}
 		return MyRules::myRuturn(1, '获取成功！', $cate);
+	}
+
+	/**
+	 * 通过分类id获取文章数量
+	 */
+	public function getArtCount(){
+		$model = new Model();
+		$artModel = new Article();
+		$Id = $this -> id;
+		$cate = $model -> getById($Id);
+		if(!$cate){
+			return MyRules::myRuturn(1,'无栏目', 0);
+		}
+		$count = $model -> getCountByCate($Id);
+		if(!$count){
+			return MyRules::myRuturn(1,'无栏目', 0);
+		}
+		return MyRules::myRuturn(1,'无栏目', $count);
+	}
+
+	/**
+	 * 通过分类id获取文章数量
+	 */
+	private function changeCate($Id = 1){
+		$artModel = new Article();
+		$count = $artModel -> getCountByCate($Id);
+		if(!$count){
+			return 0;
+		}
+		return $count;
 	}
 }

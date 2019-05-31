@@ -47,6 +47,11 @@ class Article extends Api{
 				'page' => array('name' => 'page', 'require' => true, 'desc' => '当前页'),
 				'num'  => array('name' => 'num', 'require' => true, 'desc' => '每页数量')
 			),
+			'getListByCate' => array(
+				'cate' => array('name' => 'cate', 'require' => true, 'desc' => '分类id'),
+				'page' => array('name' => 'page', 'require' => true, 'desc' => '当前页'),
+				'num'  => array('name' => 'num', 'require' => true, 'desc' => '每页数量')
+			),
 			'getById' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '文章id'),
 			),
@@ -54,6 +59,13 @@ class Article extends Api{
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '文章id'),
 			),
 			'getAll' => array(
+			),
+			'getArts' => array(
+				'page' => array('name' => 'page', 'require' => true, 'desc' => '当前页'),
+				'num'  => array('name' => 'num', 'require' => true, 'desc' => '每页数量')
+			),
+			'addLike' => array(
+				'id' => array('name' => 'id', 'require' => true, 'desc' => '文章id'),
 			),
 		);
 	}
@@ -78,7 +90,9 @@ class Article extends Api{
 		);
 		$data['ctime'] = time();
 		$data['rtime'] = time();
-		$data['face'] = '#';
+		if(!$this -> face || $this -> face == ''){
+			$data['face'] = '#';
+		}
 		$res = $model -> insertOne($data);
 		if(!$res){
 			return MyRules::myRuturn(0, '添加失败，稍后重试！');
@@ -105,7 +119,46 @@ class Article extends Api{
 		if(!$list){
 			return MyRules::myRuturn(0, '获取失败!');
 		}
-		return MyRules::myRuturn(1, '获取成功!', $list);
+		$newList = $this -> base64EncodePic($list);
+		return MyRules::myRuturn(1, '获取成功!', $newList);
+	}
+
+	/**
+	 * 获取所有已发布的文章列表，分页
+	 */
+	public function getArts(){
+		$model = new Model();
+		$begin = ($this -> page - 1) * $this -> num;
+		$list = $model -> getArts($begin, $this -> num);
+		if(!$list){
+			return MyRules::myRuturn(0, '获取失败!');
+		}
+		$newList = $this -> base64EncodePic($list);
+		return MyRules::myRuturn(1, '获取成功!', $newList);
+	}
+
+	/**
+	 * 获取已发布的文章数量
+	 */
+	public function getArtsCount(){
+		$model = new Model();
+		$count = $model -> getArtsCount();
+		return MyRules::myRuturn(1, '获取成功!', $count);
+	}
+
+	/**
+	 * 通过文章分类获取已发布的文章列表，分页
+	 */
+	public function getListByCate(){
+		$model = new Model();
+		$cate = $this -> cate;
+		$begin = ($this -> page - 1) * $this -> num;
+		$list = $model -> getListByCate($begin, $this -> num, $cate);
+		if(!$list){
+			return MyRules::myRuturn(0, '获取失败!');
+		}
+		$newList = $this -> base64EncodePic($list);
+		return MyRules::myRuturn(1, '获取成功!', $newList);
 	}
 
 	/**
@@ -168,6 +221,9 @@ class Article extends Api{
 		}
 		$article["ctime"] = date('Y/m/d H:i:s', $article["ctime"]);
 		$article["rtime"] = date('Y/m/d H:i:s', $article["rtime"]);
+		if($article['face'] != '#'){
+			$article['face']  = MyRules::base64EncodeImage($article['face']);
+		}
 		return MyRules::myRuturn(1, '数据获取成功', $article);
 	}
 
@@ -178,7 +234,7 @@ class Article extends Api{
 		$Id = $this -> id;
 		$model = new Model();
 		$art = $model -> getById($Id);
-		if(is_file($art['state']) == false){
+		if(is_file($art['face']) == false){
 			return MyRules::myRuturn(0, '请添加文章封面后再发布文章');
 		}
 		$art['state'] = 1;
@@ -198,6 +254,37 @@ class Article extends Api{
 		if(!$list){
 			return MyRules::myRuturn(0, '获取失败');
 		}
-		return MyRules::myRuturn(1, '获取成功!', $list);
+		$newList = $this -> base64EncodePic($list);
+		return MyRules::myRuturn(1, '获取成功!', $newList);
+	}
+
+	/**
+	 * 将数组中的图片路径转化base64格式的图片
+	 * @param data 含有图片路径的数组对象
+	 */
+	private function base64EncodePic($data){
+		$count = count($data);
+		for($i = 0; $i < $count; $i++){
+			$img = $data[$i]['face'];
+			$data[$i]['ctime'] = date('Y/m/d H:i:s', $data[$i]['ctime']);
+			if($img != '#'){
+				$base64_image = MyRules::base64EncodeImage($img);
+				$data[$i]['face'] = $base64_image;
+			}
+		}
+		return $data;
+	}
+
+	/**
+	 * 增加文章like
+	 */
+	public function addLike(){
+		$model = new Model();
+		$Id = $this -> id;
+		$sql = $model -> addLike($Id);
+		if(!$sql){
+			return MyRules::myRuturn(0, '异常');
+		}
+		return MyRules::myRuturn(1, '成功');
 	}
 }
