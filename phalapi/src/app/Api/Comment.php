@@ -62,7 +62,7 @@ class Comment extends Api{
 		$model = new Model();
 		$data = array(
 			'uid'      => $this -> uid,
-			'ip'       => $this -> ip,
+			'ip'       => request()->ip(),
 			'parentid' => $this -> pid,
 			'aid'      => $this -> aid,
 			'content'  => $this -> content
@@ -86,7 +86,7 @@ class Comment extends Api{
 		}
 		$data = array(
 			'uid'      => $this -> uid,
-			'ip'       => $this -> ip,
+			'ip'       => $_SERVER['REMOTE_ADDR'],
 			'parentid' => $this -> pid,
 			'aid'      => $this -> aid,
 			'content'  => $this -> content

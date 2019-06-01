@@ -13,27 +13,27 @@ use App\Common\MyRules;
 class User extends Api {
     public function getRules() {	
       return array(
-				'Login' => array(
+				'login' => array(
 					'name' => array('name' => 'name', 'require' => true, 'min' => 4, 'desc' => '用户名'),
-					'pass' => array('name' => 'pass', 'require' => true, 'min' => 8, 'desc' => '用户密码'),
+					'pass' => array('name' => 'pass', 'require' => true, 'min' => 6, 'desc' => '用户密码'),
 				),
 				'add' => array(
-					'name' => array('name' => 'name', 'require' => true, 'min' => 4, 'max' => 50, 'desc' => '用户名'),
-					'pass' => array('name' => 'pass', 'require' => true, 'min' => 6, 'max' => 50, 'desc' => '用户密码'),
-					'about'      => array('name' => 'about', 'desc' => '一句话介绍自己'),
+					'name'  => array('name' => 'name', 'require' => true, 'min' => 4, 'max' => 50, 'desc' => '用户名'),
+					'pass'  => array('name' => 'pass', 'require' => true, 'min' => 6, 'max' => 50, 'desc' => '用户密码'),
+					'about' => array('name' => 'about', 'desc' => '一句话介绍自己'),
 				),
 				'update' => array(
-					'id' => array('name' => 'id', 'require' => true, 'desc' => '用户编号'),
-					'name' => array('name' => 'name', 'min' => 4, 'max' => 50, 'desc' => '用户名'),
-					'about'      => array('name' => 'about', 'desc' => '一句话介绍自己'),
+					'id' 	  => array('name' => 'id', 'require' => true, 'desc' => '用户编号'),
+					'name'  => array('name' => 'name', 'min' => 4, 'max' => 50, 'desc' => '用户名'),
+					'about' => array('name' => 'about', 'desc' => '一句话介绍自己'),
 				),
 				'addLike' => array(
-					'id' => array('name' => 'id', 'require' => true, 'desc' => '用户id'),
+					'id' 	=> array('name' => 'id', 'require' => true, 'desc' => '用户id'),
 					'aid' => array('name' => 'aid', 'require' => true, 'desc' => '文章id'),
 				),
 				'getList' => array(
 					'page' => array('name' => 'page', 'desc' => '当前页码'),
-					'num' => array('name' => 'num', 'desc' => '每页数量'),
+					'num'  => array('name' => 'num', 'desc' => '每页数量'),
 				),
 				'getCount' => array(),
 				'getById' => array(
@@ -46,19 +46,17 @@ class User extends Api {
 		}
 		
     /**
-     * 登录接
+     * 用户登录
      */
-    public function Login() {
+    public function login() {
       $user = $this->name;
 			$pass = $this->pass;
-			$GD = new GD();
-			$codeimg = $GD -> getVerification(4);
 			$domain = new Domain();
 			$login = $domain -> Login($user, $pass);
 			if($login['status'] == 0){
 				return $this -> getReturn(0, $login['msg']);
 			}
-			return $this -> getReturn(1,$login['msg'], $codeimg['pic']);
+			return $this -> getReturn(1,$login['msg'], $login['data']);
 		}
 
 		/**

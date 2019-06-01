@@ -59,4 +59,13 @@ class Friendlink extends NotORM{
 		$model = $this -> getORM();
 		return $model -> where('id', $id) -> delete();
 	}
+
+
+	/**
+	 * 获取状态为已同意且需要显示的所有友链
+	 */
+	public function getFriends(){
+		$model = $this -> getORM();
+		return $model -> where('state', 1) -> where('isshow', 1) -> fetchAll();
+	}
 }

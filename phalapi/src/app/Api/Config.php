@@ -12,14 +12,19 @@ class Config extends Api{
 		return array(
 			'add' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '配置id'),
-				'title' => array('name' => 'title', 'require' => true, 'desc' => '站点配置'),
+				'title' => array('name' => 'title', 'require' => true, 'desc' => '站点标题'),
 				'host' => array('name' => 'host',  'desc' => '站长'),
-				'desc' => array('name' => 'desc', 'desc' => '站点配置'),
+				'desc' => array('name' => 'desc', 'desc' => '站点描述'),
+				'about' => array('name' => 'about', 'desc' => '站点站长介绍'),
 				'certificates' => array('name' => 'certificates', 'desc' => '证件'),
-				'email' => array('name' => 'email', 'desc' => '站点配置'),
-				'address' => array('name' => 'address', 'desc' => '站点配置'),
-				'state' => array('name' => 'state', 'desc' => '站点配置'),
-				'info' => array('name' => 'info', 'desc' => '站点配置'),
+				'email' => array('name' => 'email', 'desc' => '站点邮件'),
+				'qq' => array('name' => 'qq', 'desc' => 'QQ'),
+				'phone' => array('name' => 'phone', 'desc' => '联系电话'),
+				'address' => array('name' => 'address', 'desc' => '站点地址'),
+				'state' => array('name' => 'state', 'desc' => '站点状态'),
+				'info' => array('name' => 'info', 'desc' => '关站信息'),
+				'hobby' => array('name' => 'hobby', 'desc' => '业余爱好'),
+				'work' => array('name' => 'work', 'desc' => '博主职业'),
 			),
 			'getId' => array(
 			),
@@ -42,9 +47,14 @@ class Config extends Api{
 			'desc'    => $this -> desc,
 			'certificates' => $this -> certificates,
 			'email'   => $this -> email,
+			'qq'   		=> $this -> qq,
+			'phone'   => $this -> phone,
 			'address' => $this -> address,
 			'state'   => $this -> state,
 			'info'    => $this -> info,
+			'about'   => $this -> about,
+			'hobby'   => $this -> hobby,
+			'work'    => $this -> work,
 		);
 		$config = json_encode($data,JSON_UNESCAPED_UNICODE);
 		$newData = array(

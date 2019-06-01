@@ -21,18 +21,21 @@ class User
 		if(!$sql){
 			return array(
 				'status' => 0,
-				'msg'    => '用户名不存在!',
+				'msg'    => '昵称错了噢!',
+				'data'   => ''
 			);
 		}
 		if($pass != $sql['pass']){
 			return array(
 				'status' => 0,
-				'msg'    => '用户密码不正确!'
+				'msg'    => '密码不正确噢!',
+				'data'   => ''
 			);
 		}
 		return array(
 			'status' => 1,
-			'msg'    => '登录验证成功',
+			'msg'    => '登录成功',
+			'data'   => $sql,
 		);
 	}
 
@@ -46,7 +49,7 @@ class User
 		if($sql){
 			return array(
 				'status' => 0,
-				'msg'    => '用户名已存在!',
+				'msg'    => '昵称已存在，换个昵称试试吧!',
 			);
 		}
 		$insert = $model -> saveOne($data);

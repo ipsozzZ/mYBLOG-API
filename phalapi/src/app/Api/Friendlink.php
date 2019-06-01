@@ -34,6 +34,7 @@ class Friendlink extends Api{
 			'delete' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '友链id')
 			),
+			'getFriends' => array(),
 		);
 	}
 
@@ -55,7 +56,7 @@ class Friendlink extends Api{
 		);
 		$res = $model -> insertOne($data);
 		if(!$res){
-			return MyRules::myRuturn(0, '添加失败！');
+			return MyRules::myRuturn(0, '申请失败，请稍后重试!');
 		}
 		return MyRules::myRuturn(1, '添加成功！', $res);
 	}
@@ -103,6 +104,18 @@ class Friendlink extends Api{
 	public function getList(){
 		$model = new Model();
 		$frs = $model -> getAll();
+		if(!$frs){
+			return MyRules::myRuturn(0, '获取失败');
+		}
+		return MyRules::myRuturn(1, '获取成功', $frs);
+	}
+
+	/**
+	 * 获取所有显示状态的友链
+	 */
+	public function getFriends(){
+		$model = new Model();
+		$frs = $model -> getFriends();
 		if(!$frs){
 			return MyRules::myRuturn(0, '获取失败');
 		}
