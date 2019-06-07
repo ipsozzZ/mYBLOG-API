@@ -4,6 +4,9 @@ namespace App\Api;
 use PhalApi\Api;
 use App\Model\Comment as Model;
 use App\Common\MyRules;
+use App\Domain\Affair;
+use App\Model\User;
+use App\Model\Article;
 
 /**
  * 友情链接类接口
@@ -12,26 +15,28 @@ class Comment extends Api{
 	public function getRules(){
 		return array(
 			'add' => array(
-				'uid'    => array('name' => 'uid', 'require' => true, 'desc' => '用户id'),
-				'ip' => array('name' => 'ip', 'desc' => '用户ip'),
-				'pid'   => array('name' => 'parentid', 'desc' => '父评论id'),
-				'aid'  => array('name' => 'aid', 'desc' => '文章id(pid和aid必须有一个不为空)'),
-				'content'  => array('name' => 'content', 'desc' => '评论内容'),
+				'uid'     => array('name' => 'uid', 'require' => true, 'desc' => '用户id'),
+				'like'    => array('name' => 'like', 'desc' => '点赞'),
+				'pid'     => array('name' => 'parentid', 'desc' => '父评论id'),
+				'aid'     => array('name' => 'aid', 'desc' => '文章id(pid和aid必须有一个不为空)'),
+				'comment' => array('name' => 'comment', 'desc' => '文章评论数'),
+				'content' => array('name' => 'content', 'desc' => '评论内容'),
 			),
 			'update' => array(
 				'id'      => array('name' => 'id', 'require' => true, 'desc' => '配置id'),
-				'uid'    => array('name' => 'uid', 'require' => true, 'desc' => '用户id'),
-				'ip' => array('name' => 'ip', 'desc' => '用户ip'),
-				'pid'   => array('name' => 'parentid', 'desc' => '父评论id'),
-				'aid'  => array('name' => 'aid', 'desc' => '文章id(pid和aid必须有一个不为空)'),
-				'content'  => array('name' => 'content', 'desc' => '评论内容'),
+				'uid'     => array('name' => 'uid', 'require' => true, 'desc' => '用户id'),
+				'like'    => array('name' => 'like', 'desc' => '点赞'),
+				'pid'     => array('name' => 'parentid', 'desc' => '父评论id'),
+				'comment' => array('name' => 'comment', 'desc' => '文章评论数'),
+				'aid'     => array('name' => 'aid', 'desc' => '文章id(pid和aid必须有一个不为空)'),
+				'content' => array('name' => 'content', 'desc' => '评论内容'),
 			),
 			'getById' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '评论id')
 			),
 			'getList' => array(
 				'page' => array('name' => 'page', 'desc' => '当前页'),
-				'num' => array('name' => 'num', 'desc' => '每页数量')
+				'num'  => array('name' => 'num', 'desc' => '每页数量')
 			),
 			'getCount' => array(
 			),
@@ -45,12 +50,18 @@ class Comment extends Api{
 				'aid' => array('name' => 'aid', 'require' => true, 'desc' => '文章id')
 			),
 			'getListByArticle' => array(
-				'aid' => array('name' => 'aid', 'require' => true, 'desc' => '文章id'),
+				'aid'  => array('name' => 'aid', 'require' => true, 'desc' => '文章id'),
 				'page' => array('name' => 'page', 'desc' => '当前页'),
-				'num' => array('name' => 'num', 'desc' => '每页数量')
+				'num'  => array('name' => 'num', 'desc' => '每页数量')
 			),
 			'getByComment' => array(
 				'cid' => array('name' => 'cid', 'require' => true, 'desc' => '评论id，获取评论的子评论')
+			),
+			'getDefaultByArt' => array(
+				'aid' => array('name' => 'aid', 'require' => true, 'desc' => '通过文章id，获取评论')
+			),
+			'getAllByArt' => array(
+				'aid' => array('name' => 'aid', 'require' => true, 'desc' => '通过文章id，获取评论')
 			),
 		);
 	}
@@ -62,14 +73,23 @@ class Comment extends Api{
 		$model = new Model();
 		$data = array(
 			'uid'      => $this -> uid,
-			'ip'       => request()->ip(),
+			'like'     => $this -> like,
 			'parentid' => $this -> pid,
 			'aid'      => $this -> aid,
 			'content'  => $this -> content
 		);
 		$res = $model -> insertOne($data);
 		if(!$res){
-			return MyRules::myRuturn(0, '添加失败！');
+			return MyRules::myRuturn(0, '抱歉！添加失败！');
+		}
+		if($data['aid']){
+			$artModel = new Article();
+			$art = $artModel -> getById((int)$data['aid']);
+			$art['comments'] += 1;
+			$sql = $artModel -> updateOne($data['aid'], $art);
+			if(!$sql){
+				return MyRules::myRuturn(0, '抱歉！添加失败！');
+			}
 		}
 		return MyRules::myRuturn(1, '添加成功！', $res);
 	}
@@ -86,7 +106,8 @@ class Comment extends Api{
 		}
 		$data = array(
 			'uid'      => $this -> uid,
-			'ip'       => $_SERVER['REMOTE_ADDR'],
+			// 'ip'       => $_SERVER['REMOTE_ADDR'],
+			'like'     => $this -> like,
 			'parentid' => $this -> pid,
 			'aid'      => $this -> aid,
 			'content'  => $this -> content
@@ -173,6 +194,51 @@ class Comment extends Api{
 		if(!$sql){
 			return MyRules::myRuturn(0, '删除失败');
 		}
+		// 删除评论下的所有评论
+		$domain = new Affair();
+		$domain -> deleteComment($Id);
 		return MyRules::myRuturn(1, '删除成功！');
+	}
+
+	/**
+	 * 获取所有评论通过文章id
+	 */
+	public function getAllByArt(){
+		$aid = $this -> aid;
+		$model = new Model();
+		$list = $model -> getByArt($aid);
+		if(!$list){
+			return MyRules::myRuturn(0, '无数据', '');
+		}
+		$newlist = $this -> getUserName($list);
+		return MyRules::myRuturn(1, '成功', $newlist);
+	}
+
+	/**
+	 * 获取默认显示的10条评论通过文章id
+	 */
+	public function getDefaultByArt(){
+		$aid = $this -> aid;
+		$model = new Model();
+		$list = $model -> getDefault($aid);
+		if(!$list){
+			return MyRules::myRuturn(0, '无数据', '');
+		}
+		$newlist = $this -> getUserName($list);
+		return MyRules::myRuturn(1, '成功', $newlist);
+	}
+
+	/**
+	 * 通过data中的uid获取用户name
+	 */
+	private function getUserName($data){
+		$userModel = new User();
+		$count = @count($data);
+		for($i = 0; $i < $count; $i++){
+			$user = $userModel -> getById($data[$i]['uid']);
+			$data[$i]['user'] = $user['name'];
+			$user = null;
+		}
+		return $data;
 	}
 }

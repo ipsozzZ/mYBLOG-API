@@ -80,6 +80,15 @@ class Article extends NotORM{
 	}
 
 	/**
+	 * 根据栏目id删除所有数据
+	 * @param cid 栏目id
+	 */
+	public function deleteAll($cid){
+		$model = $this -> getORM();
+		return $model -> where('cate', $cid) -> delete();
+	}
+
+	/**
 	 * 通过分类获取文章数量
 	 */
 	public function getCountByCate($cid){
@@ -90,6 +99,14 @@ class Article extends NotORM{
 	public function getListByCate($begin = 1, $num = 10, $cate = 1){
 		$model = $this -> getORM();
 		return $model -> where('cate', $cate) -> where('state', 1) -> limit($begin, $num) -> fetchAll();
+	}
+
+	/**
+	 * 通过栏目id获取所有文章的id
+	 */
+	public function getArtsByCate($cate = 0){
+		$model = $this -> getORM();
+		return $model -> where('cate', $cate) -> select('id, cate') -> fetchAll();
 	}
 
 

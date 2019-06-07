@@ -4,6 +4,7 @@ use PhalApi\Api;
 use App\Model\Cate as Model;
 use App\Common\MyRules;
 use App\Model\Article;
+use App\Domain\Affair;
 
 /**
  * 管理员类接口
@@ -97,6 +98,9 @@ class Category extends Api
 		if(!$sql){
 			return MyRules::myRuturn(0, '操作异常，请重试!', '');
 		}
+		// 删除栏目下的所有文章及文章评论
+		$domain = new Affair();
+		$domain -> deleteCate($Id);
 		return MyRules::myRuturn(1, '删除成功!', '');
 	}
 

@@ -4,6 +4,7 @@ use App\Model\Article as Model;
 use PhalApi\Api;
 use App\Common\MyRules;
 use App\Model\Admin;
+use App\Domain\Affair;
 
 /**
  * 文章类接口
@@ -65,6 +66,9 @@ class Article extends Api{
 				'num'  => array('name' => 'num', 'require' => true, 'desc' => '每页数量')
 			),
 			'addLike' => array(
+				'id' => array('name' => 'id', 'require' => true, 'desc' => '文章id'),
+			),
+			'addComment' => array(
 				'id' => array('name' => 'id', 'require' => true, 'desc' => '文章id'),
 			),
 		);
@@ -206,6 +210,9 @@ class Article extends Api{
 		if(!$sql){
 			return MyRules::myRuturn(0, '删除失败,稍后重试!');
 		}
+		// 删除文章下的所有评论
+		$domain = new Affair();
+		$domain -> deleteArt($Id);
 		return MyRules::myRuturn(1, '删除成功!');
 	}
 
@@ -238,6 +245,8 @@ class Article extends Api{
 			return MyRules::myRuturn(0, '请添加文章封面后再发布文章');
 		}
 		$art['state'] = 1;
+		$art['ctime'] = time();
+		$art['rtime'] = time();
 		$res = $model -> updateOne($Id, $art);
 		if(!$res){
 			return MyRules::myRuturn(0, '文章发布失败');
@@ -281,7 +290,24 @@ class Article extends Api{
 	public function addLike(){
 		$model = new Model();
 		$Id = $this -> id;
-		$sql = $model -> addLike($Id);
+		$art = $model -> getById($Id);
+		$art['like'] += 1;
+		$sql = $model -> updateOne($Id, $art);
+		if(!$sql){
+			return MyRules::myRuturn(0, '异常');
+		}
+		return MyRules::myRuturn(1, '成功');
+	}
+
+	/**
+	 * 增加文章like
+	 */
+	public function addComment(){
+		$model = new Model();
+		$Id = $this -> id;
+		$art = $model -> getById($Id);
+		$art['comments'] += 1;
+		$sql = $model -> updateOne($Id, $art);
 		if(!$sql){
 			return MyRules::myRuturn(0, '异常');
 		}

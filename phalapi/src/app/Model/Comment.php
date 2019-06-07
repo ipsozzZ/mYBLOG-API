@@ -92,10 +92,46 @@ class Comment extends NotORM{
 
 	/**
 	 * 根据id删除一条数据
-	 * @param id 用户id
+	 * @param id 评论id
 	 */
 	public function deleteOne($id){
 		$model = $this -> getORM();
 		return $model -> where('id', $id) -> delete();
+	}
+
+	/**
+	 * 根据文章id删除所有数据
+	 * @param aid 文章id
+	 */
+	public function deleteAllByArt($aid){
+		$model = $this -> getORM();
+		return $model -> where('aid', $aid) -> delete();
+	}
+
+	/**
+	 * 根据评论id删除所有数据
+	 * @param pid 评论id
+	 */
+	public function deleteAllByParent($pid){
+		$model = $this -> getORM();
+		return $model -> where('parentid', $pid) -> delete();
+	}
+
+	/* ---------------- 前台系统 ---------------- */
+
+	/**
+	 * 获取默认显示的十条数据
+	 */
+	public function getDefault($aid){
+		$model = $this -> getORM();
+		return $model -> where('aid', $aid) -> limit(0, 10) -> fetchAll();
+	}
+
+	/**
+	 * 获取所有评论
+	 */
+	public function getByArt($aid){
+		$model = $this -> getORM();
+		return $model -> where('aid', $aid) -> fetchAll();
 	}
 }

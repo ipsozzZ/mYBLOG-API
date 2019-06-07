@@ -10,11 +10,12 @@ use PhalApi\Model\NotORMModel as NotORM;
 
 class User extends NotORM
 {
-
+	
 	public function getAll(){
 		$model = $this -> getORM();
 		return $model -> fectAll();
 	}
+
 	public function getById($id){
 		$model = $this -> getORM();
 		return $model -> where('id', $id) -> fetchOne();
