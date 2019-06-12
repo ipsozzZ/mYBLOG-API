@@ -51,4 +51,9 @@ class Picture extends NotORM{
 		$model = $this -> getORM();
 		return $model -> where('type', $type) -> count('id');
 	}
+
+	public function getNewByType($type = 2, $num = 5){
+		$model = $this -> getORM();
+		return $model -> where('type', $type) -> order('id DESC') -> limit($num) -> fetchAll();
+	}
 }

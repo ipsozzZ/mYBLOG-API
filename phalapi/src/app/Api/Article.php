@@ -39,7 +39,7 @@ class Article extends Api{
 				'istop'    => array('name' => 'istop', 'desc' => '文章是否置顶'),
 				'like'     => array('name' => 'like', 'desc' => '文章点赞'),
 				'comments' => array('name' => 'comments', 'desc' => '文章评论'),
-				'face'     => array('name' => 'face', 'desc' => '文章封面'),
+				'src'      => array('name' => 'src', 'desc' => '文章封面'),
 				'state'    => array('name' => 'state', 'desc' => '文章状态，发布/未发布'),
 				'content'  => array('name' => 'content', 'desc' => '文章内容'),
 			),
@@ -179,7 +179,7 @@ class Article extends Api{
 			'istop'    => $this -> istop,
 			'like'     => $this -> like,
 			'comments' => $this -> comments,
-			'face'     => $this -> face,
+			'face'      => $this -> src,
 			'state'    => $this -> state,
 			'content'  => $this -> content,
 		);
@@ -229,7 +229,8 @@ class Article extends Api{
 		$article["ctime"] = date('Y/m/d H:i:s', $article["ctime"]);
 		$article["rtime"] = date('Y/m/d H:i:s', $article["rtime"]);
 		if($article['face'] != '#'){
-			$article['face']  = MyRules::base64EncodeImage($article['face']);
+			$article['src'] = $article['face'];
+			$article['face']  = MyRules::base64EncodeImage($article['src']);
 		}
 		return MyRules::myRuturn(1, '数据获取成功', $article);
 	}

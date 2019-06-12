@@ -14,10 +14,10 @@ return array(
     'servers' => array(
         'db_master' => array(                       //服务器标记
             'type'      => 'mysql',                 //数据库类型，暂时只支持：mysql, sqlserver
-            'host'      => 'www.ipso.live',             //数据库域名
-            'name'      => 'ipso',               //数据库名字
-            'user'      => 'ipso',                  //数据库用户名
-            'password'  => 'gqm1975386453',	        //数据库密码
+            'host'      => 'localhost',             //数据库域名
+            'name'      => 'testapi',               //数据库名字
+            'user'      => 'root',                  //数据库用户名
+            'password'  => 'root',	        //数据库密码
             'port'      => 3306,                    //数据库端口
             'charset'   => 'UTF8',                  //数据库字符集
         ),

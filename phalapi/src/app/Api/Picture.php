@@ -27,6 +27,9 @@ class Picture extends Api{
 			'getByType' => array(
 				'type' => array('name' => 'type', 'desc' => '图片分类'),
 			),
+			'getNewByType' => array(
+				'type' => array('name' => 'type', 'desc' => '图片分类'),
+			),
 		);
 	}
 
@@ -60,8 +63,7 @@ class Picture extends Api{
 	public function getCount(){
 		$model = new Model();
 		$type = $this -> type;
-		var_dump($type);
-		if($type = null){
+		if($type != null){
 			$count = $model -> getCountByType($type);
 			return MyRules::myRuturn(1, '成功', $count);
 		}
@@ -103,6 +105,23 @@ class Picture extends Api{
 	public function getByType(){
 		$model = new Model();
 		$sql = $model -> getByType($this -> type);
+		if(!$sql){
+			return MyRules::myRuturn(0, '暂无数据');
+		}
+		$list = $this -> base64EncodePic($sql);
+		return MyRules::myRuturn(1, '成功', $list);
+	}
+
+	/**
+	 * 获取最新添加的12张照片，如果是文章封面则只获取5张
+	 */
+	public function getNewByType(){
+		$model = new Model();
+		$num = 5;
+		if($this -> type == 3){
+			$num = 12;
+		}
+		$sql = $model -> getNewByType($this -> type, $num);
 		if(!$sql){
 			return MyRules::myRuturn(0, '暂无数据');
 		}
