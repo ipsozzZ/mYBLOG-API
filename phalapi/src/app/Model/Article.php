@@ -38,7 +38,7 @@ class Article extends NotORM{
 
 	public function getList($begin = 1, $num = 10){
 		$model = $this -> getORM();
-		return $model -> limit($begin, $num) -> fetchAll();
+		return $model -> order('id DESC') -> limit($begin, $num) -> fetchAll();
 	}
 
 	/**
@@ -117,7 +117,7 @@ class Article extends NotORM{
 	 */
 	public function getArts($begin = 1, $num = 10){
 		$model = $this -> getORM();
-		return $model -> where('state', 1) -> limit($begin, $num) -> fetchAll();
+		return $model -> where('state', 1) -> order('id DESC') -> limit($begin, $num) -> fetchAll();
 	}
 
 	/**
