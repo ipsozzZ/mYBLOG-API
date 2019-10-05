@@ -38,7 +38,7 @@ class Article extends NotORM{
 
 	public function getList($begin = 1, $num = 10){
 		$model = $this -> getORM();
-		return $model -> order('id DESC') -> limit($begin, $num) -> fetchAll();
+		return $model -> order('id DESC') -> limit($begin, $num) -> select("id, title, author") -> fetchAll();
 	}
 
 	/**

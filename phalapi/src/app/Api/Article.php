@@ -123,8 +123,8 @@ class Article extends Api{
 		if(!$list){
 			return MyRules::myRuturn(0, '获取失败!');
 		}
-		$newList = $this -> base64EncodePic($list);
-		return MyRules::myRuturn(1, '获取成功!', $newList);
+		// $newList = $this -> base64EncodePic($list);
+		return MyRules::myRuturn(1, '获取成功!', $list);
 	}
 
 	/**
